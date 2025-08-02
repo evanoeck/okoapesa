@@ -8,33 +8,41 @@
   <style>
     .loan-card:hover { border-color: #0d6efd; cursor: pointer; background: #f0f8ff; }
     .selected { border: 2px solid #0d6efd !important; background: #e7f1ff; }
+    #landingPage {
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
   </style>
 </head>
 <body class="bg-light">
 
 <!-- Landing Page -->
-<div class="container text-center py-5" id="landingPage">
-  <h1 class="mb-3">Welcome to <span class="text-primary">Okoa Pesa Loan</span></h1>
+<div class="container" id="landingPage">
+  <h1 class="mb-3">Welcome to <span class="text-primary">ePesa</span></h1>
   <p class="lead">Get instant mobile loans without CRB, paperwork, or guarantors.</p>
   <button class="btn btn-primary mt-3 px-4" onclick="startApplication()">Apply for a Loan</button>
 </div>
 
-<!-- Loan Application Section -->
+<!-- Loan Application Form -->
 <div class="container py-4 d-none" id="applicationSection">
   <h3 class="text-center mb-4">Check Your Loan Eligibility</h3>
   <div class="card p-4 shadow-sm mx-auto" style="max-width: 500px;">
     <form id="eligibilityForm">
       <div class="mb-3">
         <label for="fullName" class="form-label">Full Name</label>
-        <input type="text" id="fullName" class="form-control" required>
+        <input type="text" id="fullName" class="form-control" required />
       </div>
       <div class="mb-3">
         <label for="phoneNumber" class="form-label">Phone Number</label>
-        <input type="tel" id="phoneNumber" class="form-control" placeholder="07XXXXXXXX" required>
+        <input type="tel" id="phoneNumber" class="form-control" placeholder="07XXXXXXXX" required />
       </div>
       <div class="mb-3">
         <label for="idNumber" class="form-label">ID Number</label>
-        <input type="number" id="idNumber" class="form-control" required>
+        <input type="number" id="idNumber" class="form-control" required />
       </div>
       <div class="mb-3">
         <label for="loanType" class="form-label">Loan Type</label>
@@ -52,15 +60,15 @@
   </div>
 </div>
 
-<!-- Loan Qualified Message -->
+<!-- Qualified Message -->
 <div class="container text-center py-5 d-none" id="qualifiedMessage">
   <h4 class="text-success">Congratulations!</h4>
   <p class="lead">You have qualified for a loan.</p>
   <div class="spinner-border text-primary mt-3"></div>
 </div>
 
-<!-- Loan Options Section -->
-<div id="loanOptions" class="container mt-5 d-none">
+<!-- Loan Options -->
+<div class="container mt-5 d-none" id="loanOptions">
   <h5 class="text-center mb-3">Select Your Loan Option</h5>
   <div class="row row-cols-2 g-3" id="optionsGrid"></div>
   <div class="text-center mt-4">
@@ -68,7 +76,7 @@
   </div>
 </div>
 
-<!-- Phone confirmation Modal -->
+<!-- Confirm Modal -->
 <div class="modal fade" id="confirmModal" tabindex="-1">
   <div class="modal-dialog">
     <div class="modal-content">
@@ -89,7 +97,7 @@
   </div>
 </div>
 
-<!-- Bootstrap + JavaScript -->
+<!-- Bootstrap & Logic -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   const landingPage = document.getElementById('landingPage');
@@ -107,17 +115,19 @@
   let applicantPhone = '';
 
   const loanPackages = [
-    { amount: 5500, fee: 100 },
-    { amount: 7800, fee: 120 },
-    { amount: 9800, fee: 140 },
-    { amount: 11200, fee: 180 },
-    { amount: 16800, fee: 200 },
-    { amount: 21200, fee: 220 }
+    { amount: 5500, fee: 180 },
+    { amount: 7800, fee: 220 },
+    { amount: 9800, fee: 240 },
+    { amount: 11200, fee: 300 },
+    { amount: 16800, fee: 350 },
+    { amount: 21200, fee: 400 }
   ];
 
   function startApplication() {
     landingPage.classList.add('d-none');
-    applicationSection.classList.remove('d-none');
+    setTimeout(() => {
+      applicationSection.classList.remove('d-none');
+    }, 300);
   }
 
   eligibilityForm.onsubmit = function(e) {
@@ -129,10 +139,14 @@
     qualifiedMessage.classList.remove('d-none');
 
     setTimeout(() => {
+      alert("You have qualified for a loan! Choose your amount next.");
+    }, 1000);
+
+    setTimeout(() => {
       qualifiedMessage.classList.add('d-none');
       loanOptions.classList.remove('d-none');
       renderLoanOptions();
-    }, 1500);
+    }, 2500);
   };
 
   function renderLoanOptions() {
